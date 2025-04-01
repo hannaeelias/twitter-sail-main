@@ -18,8 +18,8 @@ return new class extends Migration
             $table->timestamps();
         });
     }
-    php artisan migrate
     
+
     /**
      * Reverse the migrations.
      */
