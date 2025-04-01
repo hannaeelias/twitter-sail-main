@@ -33,9 +33,11 @@ jobs:
           cp .env.example .env
           php artisan key:generate
 
+      - name: Run Migrations
+        run: php artisan migrate --env=testing
+
       - name: Run Tests
         run: php artisan test
-
   sync-back:
     name: Push Changes Back to GitHub
     runs-on: ubuntu-latest
