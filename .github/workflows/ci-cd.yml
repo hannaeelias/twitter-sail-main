@@ -48,14 +48,14 @@ jobs:
           echo "SESSION_DRIVER=database" >> .env
           php artisan key:generate
 
-      - name: Create Session Table (if not exists)
+      - name: Create Session Table (skip if exists)
         run: |
-          if ls database/migrations/*_create_sessions_table.php 1> /dev/null 2>&1; then
-            echo "Session migration already exists, skipping..."
-          else
-            php artisan session:table
-          fi
-
+            if ! grep -q "create_sessions_table" database/migrations/*; then
+              php artisan session:table
+            else
+              echo "Session migration already exists, skipping..."
+            fi
+            
       - name: Run Migrations
         run: php artisan migrate
 
