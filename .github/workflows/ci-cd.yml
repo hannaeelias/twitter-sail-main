@@ -20,7 +20,7 @@ jobs:
       - name: Set Up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.2.28
+          php-version: 8.2
           extensions: mbstring, bcmath
           ini-values: post_max_size=256M, upload_max_filesize=256M
           coverage: none
@@ -28,9 +28,16 @@ jobs:
       - name: Install Dependencies
         run: composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader
 
+      - name: Create SQLite Database
+        run: |
+          mkdir -p database
+          touch database/database.sqlite
+
       - name: Set Up Environment
         run: |
           cp .env.example .env
+          echo "DB_CONNECTION=sqlite" >> .env
+          echo "DB_DATABASE=$(pwd)/database/database.sqlite" >> .env
           php artisan key:generate
 
       - name: Run Migrations
@@ -38,6 +45,7 @@ jobs:
 
       - name: Run Tests
         run: php artisan test
+
   sync-back:
     name: Push Changes Back to GitHub
     runs-on: ubuntu-latest
@@ -58,3 +66,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git add .
+          git commit -m "CI: Sync changes after test run" || echo "No changes to commit"
+          git push origin main
